@@ -1,0 +1,62 @@
+package servlet;
+
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+import util.DBUtil;
+
+@WebServlet("/write")
+public class WriteServlet extends HttpServlet {
+    private static final long serialVersionUID = 1L;
+
+    protected void doPost(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+
+        request.setCharacterEncoding("UTF-8");
+        response.setContentType("text/html; charset=UTF-8");
+
+        HttpSession session = request.getSession();
+
+        Integer userId = (Integer) session.getAttribute("user_id");
+        String nickname = (String) session.getAttribute("nickname");
+
+        if (userId == null) {
+            response.sendRedirect(request.getContextPath() + "/user/login.jsp");
+            return;
+        }
+
+        String title = request.getParameter("title");
+        String content = request.getParameter("content");
+
+        String sql = "INSERT INTO board(title, content, user_id, writer) VALUES (?, ?, ?, ?)";
+
+        try (
+            Connection conn = DBUtil.getConnection();
+            PreparedStatement ps = conn.prepareStatement(sql)
+        ) {
+            ps.setString(1, title);
+            ps.setString(2, content);
+            ps.setInt(3, userId);
+            ps.setString(4, nickname);
+
+            ps.executeUpdate();
+
+            response.sendRedirect(request.getContextPath() + "/board/board.jsp");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.getWriter().println("<script>");
+            response.getWriter().println("alert('글 등록 실패');");
+            response.getWriter().println("history.back();");
+            response.getWriter().println("</script>");
+        }
+    }
+}
