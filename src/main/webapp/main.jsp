@@ -13,7 +13,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Mini OP.GG 메인 깃허브 확인용 제목</title>
+<title>Mini OP.GG 메인 </title>
 
 <style>
     body {
